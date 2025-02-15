@@ -14,3 +14,5 @@ Description: This package includes tools meant to facilitate data manipulation a
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
+URL: https://github.com/dama1833/cdeTools
+BugReports: https://github.com/dama1833/cdeTools/issues
