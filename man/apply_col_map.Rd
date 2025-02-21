@@ -4,19 +4,21 @@
 \alias{apply_col_map}
 \title{Apply Column Mapping and Convert Types}
 \usage{
-apply_col_map(df)
+apply_col_map(df, convert_type = TRUE)
 }
 \arguments{
 \item{df}{A dataframe whose columns need renaming.}
+
+\item{convert_type}{Logical. If TRUE, converts variable types according to predefined standards. Defaults to TRUE.}
 }
 \value{
-A dataframe with renamed columns.
+A dataframe with renamed columns and, optionally, converted types.
 }
 \description{
-This function renames columns in a dataframe based on a predefined mapping
-and can also apply type conversions if needed.
+This function renames columns in a dataframe based on a predefined mapping and,
+optionally, applies type conversions to standard variables.
 }
 \examples{
 df <- data.frame(DASY_KEY = 2022, DDST_DIST_NUMBER = 1234)
-apply_col_map(df)
+apply_col_map(df, convert_type = TRUE)
 }
