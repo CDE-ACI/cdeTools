@@ -66,9 +66,9 @@ apply_col_map <- function(df, convert_type = TRUE) {
   # Optionally convert variable types if convert_type is TRUE
   if (convert_type) {
     # Define standard variable names for conversion
-    integer_vars <- c("scale_score", "sgp")
+    integer_vars <- c("scale_score", "sgp", "year")
     numeric_vars <- c("mss", "mgp", "pct_pts", "pct_pts_w")
-    factor_vars  <- c("year", "dist", "sch", "sub", "emh", "test", "aec", "online",
+    factor_vars  <- c("dist", "sch", "sub", "emh", "test", "aec", "online",
                       "charter", "magnet", "innovation", "grd_low", "grd_high",
                       "rating")
 
