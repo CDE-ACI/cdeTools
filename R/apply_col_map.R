@@ -35,7 +35,7 @@ apply_col_map <- function(df, convert_type = TRUE) {
     mgp = "gro_median_sgp",
     pct_pts = "pct_pts_earn",
     pct_pts_w = "pct_pts_earn_weighted",
-    aec = "alt_ed_campus_yn"
+    aec = "alt_ed_campus"
   )
 
   # Remove the `_yn` suffix dynamically from all matching columns
