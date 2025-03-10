@@ -35,28 +35,25 @@ apply_col_map <- function(df, convert_type = TRUE) {
     mgp = "gro_median_sgp",
     pct_pts = "pct_pts_earn",
     pct_pts_w = "pct_pts_earn_weighted",
-    aec = "alt_ed_campus"
+    aec = "alt_ed_campus_yn"  # Ensure we're mapping the original _yn column
   )
 
-  # Remove the `_yn` suffix dynamically from all matching columns
+  # Filter rename_map to include only columns that exist in df
+  existing_renames <- rename_map[rename_map %in% names(df)]
+
+  # Rename using the static rename_map first
+  if (length(existing_renames) > 0) {
+    df <- dplyr::rename(df, !!!existing_renames)
+  }
+
+  # Now remove the `_yn` suffix dynamically from all matching columns
   yn_cols <- names(df)[grepl("_yn$", names(df), ignore.case = TRUE)]
   yn_rename_map <- stats::setNames(yn_cols, sub("_yn$", "", yn_cols, ignore.case = TRUE))
 
-  # Combine the static rename map with the dynamic _yn rename map
-  full_rename_map <- c(rename_map, yn_rename_map)
-
-  # Filter mapping to include only columns that exist in the dataframe
-  existing_renames <- full_rename_map[full_rename_map %in% names(df)]
-
-  if (length(existing_renames) == 0) {
-    message("No matching columns found to rename.")
-  } else {
-    message("Renaming columns as follows:")
-    print(existing_renames)
+  # Apply the _yn rename
+  if (length(yn_rename_map) > 0) {
+    df <- dplyr::rename(df, !!!yn_rename_map)
   }
-
-  # Rename columns using dplyr
-  df <- dplyr::rename(df, !!!existing_renames)
 
   # Fix non-UTF characters in `clock_awards` if it exists
   if ("clock_awards" %in% names(df)) {
@@ -87,4 +84,3 @@ apply_col_map <- function(df, convert_type = TRUE) {
 
   return(df)
 }
-
