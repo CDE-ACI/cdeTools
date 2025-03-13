@@ -4,12 +4,14 @@
 \alias{apply_col_map}
 \title{Apply Column Mapping and Convert Types}
 \usage{
-apply_col_map(df, convert_type = TRUE)
+apply_col_map(df, convert_type = TRUE, clean = TRUE)
 }
 \arguments{
 \item{df}{A dataframe whose columns need renaming.}
 
 \item{convert_type}{Logical. If TRUE, converts variable types according to predefined standards. Defaults to TRUE.}
+
+\item{clean}{Logical. If TRUE, uses janitor package to clean col names. Defaults to TRUE.}
 }
 \value{
 A dataframe with renamed columns and, optionally, converted types.

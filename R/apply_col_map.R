@@ -5,13 +5,14 @@
 #'
 #' @param df A dataframe whose columns need renaming.
 #' @param convert_type Logical. If TRUE, converts variable types according to predefined standards. Defaults to TRUE.
+#' @param clean Logical. If TRUE, uses janitor package to clean col names. Defaults to TRUE.
 #' @return A dataframe with renamed columns and, optionally, converted types.
 #' @examples
 #' df <- data.frame(DASY_KEY = 2022, DDST_DIST_NUMBER = 1234)
 #' apply_col_map(df, convert_type = TRUE)
 #' @export
 
-apply_col_map <- function(df, convert_type = TRUE) {
+apply_col_map <- function(df, convert_type = TRUE, clean = TRUE) {
 
   # Lowercase all column names for consistency **before** renaming
   names(df) <- tolower(names(df))
@@ -80,6 +81,10 @@ apply_col_map <- function(df, convert_type = TRUE) {
       dplyr::mutate(dplyr::across(dplyr::all_of(numeric_vars_exist), as.numeric)) |>
       dplyr::mutate(dplyr::across(dplyr::all_of(integer_vars_exist), as.integer)) |>
       dplyr::mutate(dplyr::across(dplyr::all_of(factor_vars_exist), as.factor))
+  }
+
+  if (clean) {
+    df <- janitor::clean_names(df)
   }
 
   return(df)
