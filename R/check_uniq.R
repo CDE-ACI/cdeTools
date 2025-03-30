@@ -1,5 +1,4 @@
-utils::globalVariables(c("n"))  # This can safely go here
-
+utils::globalVariables(c("n"))  # for dplyr::count use
 #' Check uniqueness of a dataset by specified variables
 #'
 #' This function checks whether the input dataset is unique by a given set of variables.
@@ -13,7 +12,6 @@ utils::globalVariables(c("n"))  # This can safely go here
 #' @export
 #'
 #' @importFrom dplyr count filter across all_of
-#' @importFrom utils head
 #' @importFrom cli cli_alert_danger cli_alert_info cli_alert_success
 #'
 check_uniq <- function(df, vars, n_show = 5) {
@@ -24,7 +22,7 @@ check_uniq <- function(df, vars, n_show = 5) {
   if (nrow(dupes) > 0) {
     cli::cli_alert_danger("Dataset is NOT unique by: {.val {paste(vars, collapse = ', ')}}")
     cli::cli_alert_info("{nrow(dupes)} duplicated combinations found.")
-    print(head(dupes, n_show))
+    print(utils::head(dupes, n_show))
     stop("Uniqueness check failed.")
   }
 
