@@ -26,6 +26,8 @@ apply_col_map <- function(df, convert_type = TRUE, clean = TRUE) {
     distname = "ddst_district_name",
     schname = "dsch_school_name",
     sch  = "dsch_school_number",
+    grd = "dgrd_code",
+    grd_simp = "grade_simple",
     grd_low = "dsch_grade_span_low",
     grd_high = "dsch_grade_span_high",
     test = "test_name",
@@ -33,10 +35,12 @@ apply_col_map <- function(df, convert_type = TRUE, clean = TRUE) {
     emh = "demh_emh_code",
     emh = "emh_code",
     mss = "ach_mean_ss",
+    mss = "mean_ss",
     mgp = "gro_median_sgp",
     pct_pts = "pct_pts_earn",
     pct_pts_w = "pct_pts_earn_weighted",
-    aec = "alt_ed_campus_yn"  # Ensure we're mapping the original _yn column
+    aec = "alt_ed_campus_yn",
+    cat_simp = "category_simple"
   )
 
   # Filter rename_map to include only columns that exist in df
@@ -67,9 +71,9 @@ apply_col_map <- function(df, convert_type = TRUE, clean = TRUE) {
     # Define standard variable names for conversion
     integer_vars <- c("scale_score", "sgp", "year")
     numeric_vars <- c("mss", "mgp", "pct_pts", "pct_pts_w")
-    factor_vars  <- c("dist", "sch", "sub", "emh", "test", "aec", "online",
+    factor_vars  <- c("data_set", "dist", "sch", "sub", "emh", "test", "aec", "online",
                       "charter", "magnet", "innovation", "grd_low", "grd_high",
-                      "rating")
+                      "rating", "grd", "grd_simp", "cat_simp")
 
     # Determine which of these variables exist in the dataframe
     integer_vars_exist <- intersect(integer_vars, names(df))
