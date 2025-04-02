@@ -7,6 +7,7 @@ utils::globalVariables(c("n"))  # for dplyr::count use
 #' @param df A data frame.
 #' @param vars A character vector of variable names to check uniqueness by.
 #' @param n_show Number of duplicate rows to show (default is 5).
+#' @param df_label Name of df being checked.
 #'
 #' @return Returns the original data frame if unique by `vars`; otherwise throws an error.
 #' @export
@@ -14,8 +15,12 @@ utils::globalVariables(c("n"))  # for dplyr::count use
 #' @importFrom dplyr count filter across all_of
 #' @importFrom cli cli_alert_danger cli_alert_info cli_alert_success
 #'
-check_uniq <- function(df, vars, n_show = 5) {
-  df_name <- deparse(substitute(df))  # captures the expression used for `df`
+check_uniq <- function(df, vars, n_show = 5, df_label = NULL) {
+  df_name <- if (!is.null(df_label)) {
+    df_label
+  } else {
+    deparse(substitute(df))
+  }
 
   dupes <- df |>
     count(across(all_of(vars)), name = "n") |>
@@ -31,4 +36,5 @@ check_uniq <- function(df, vars, n_show = 5) {
   cli::cli_alert_success("Dataset {.strong {df_name}} is unique by: {.val {paste(vars, collapse = ', ')}}")
   return(df)
 }
+
 

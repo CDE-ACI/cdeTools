@@ -4,7 +4,7 @@
 \alias{check_uniq}
 \title{Check uniqueness of a dataset by specified variables}
 \usage{
-check_uniq(df, vars, n_show = 5)
+check_uniq(df, vars, n_show = 5, df_label = NULL)
 }
 \arguments{
 \item{df}{A data frame.}
@@ -12,6 +12,8 @@ check_uniq(df, vars, n_show = 5)
 \item{vars}{A character vector of variable names to check uniqueness by.}
 
 \item{n_show}{Number of duplicate rows to show (default is 5).}
+
+\item{df_label}{Name of df being checked.}
 }
 \value{
 Returns the original data frame if unique by \code{vars}; otherwise throws an error.
