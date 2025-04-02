@@ -15,18 +15,20 @@ utils::globalVariables(c("n"))  # for dplyr::count use
 #' @importFrom cli cli_alert_danger cli_alert_info cli_alert_success
 #'
 check_uniq <- function(df, vars, n_show = 5) {
+  df_name <- deparse(substitute(df))  # captures the expression used for `df`
+
   dupes <- df |>
     count(across(all_of(vars)), name = "n") |>
     filter(n > 1)
 
   if (nrow(dupes) > 0) {
-    cli::cli_alert_danger("Dataset is NOT unique by: {.val {paste(vars, collapse = ', ')}}")
+    cli::cli_alert_danger("Dataset {.strong {df_name}} is NOT unique by: {.val {paste(vars, collapse = ', ')}}")
     cli::cli_alert_info("{nrow(dupes)} duplicated combinations found.")
     print(utils::head(dupes, n_show))
     stop("Uniqueness check failed.")
   }
 
-  cli::cli_alert_success("Dataset is unique by: {.val {paste(vars, collapse = ', ')}}")
+  cli::cli_alert_success("Dataset {.strong {df_name}} is unique by: {.val {paste(vars, collapse = ', ')}}")
   return(df)
 }
 
