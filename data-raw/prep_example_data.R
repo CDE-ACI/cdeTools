@@ -1,4 +1,4 @@
-## code to prepare `DATASET` dataset goes here
+## code to prepare `example` dataset goes here
 
 samp_sch_data <- read.csv("data-raw/cdeTools_example.csv")
 
