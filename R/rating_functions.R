@@ -49,25 +49,25 @@ get_rating <- function(score, indicator, measure, emh_code, subject, cuts_df, n)
     subject <- "ALL"
   }
 
-  cuts <- cuts_df %>%
+  cuts <- cuts_df |>
     dplyr::filter(indicator == indicator,
                   measure == measure,
                   (emh == "ALL" | emh == !!emh_code),
                   (subject == "ALL" | subject == !!subject))
 
-  excd_cut <- cuts %>%
-    dplyr::filter(rating_short == "excd") %>%
-    dplyr::pull(cutscore) %>%
+  excd_cut <- cuts |>
+    dplyr::filter(rating_short == "excd") |>
+    dplyr::pull(cutscore) |>
     dplyr::first()
 
-  meet_cut <- cuts %>%
-    dplyr::filter(rating_short == "meet") %>%
-    dplyr::pull(cutscore) %>%
+  meet_cut <- cuts |>
+    dplyr::filter(rating_short == "meet") |>
+    dplyr::pull(cutscore) |>
     dplyr::first()
 
-  appr_cut <- cuts %>%
-    dplyr::filter(rating_short == "appr") %>%
-    dplyr::pull(cutscore) %>%
+  appr_cut <- cuts |>
+    dplyr::filter(rating_short == "appr") |>
+    dplyr::pull(cutscore) |>
     dplyr::first()
 
   if (!is.na(excd_cut) && score >= excd_cut) return("Exceeds")
@@ -133,7 +133,7 @@ apply_rating <- function(df,
                          rating_col = "rating",
                          pts_col = "pts") {
 
-  df <- df %>%
+  df <- df |>
     dplyr::mutate(
       .rating = purrr::pmap_chr(
         list(score = .data[[score_col]],
@@ -145,7 +145,7 @@ apply_rating <- function(df,
         ~ get_rating(..1, ..2, ..3, ..4, ..5, cuts_df, ..6)
       ),
       .pts = purrr::map2_dbl(.rating, .data[[category_col]], get_pts)
-    ) %>%
+    ) |>
     dplyr::rename(
       !!rating_col := .rating,
       !!pts_col := .pts

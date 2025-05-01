@@ -12,12 +12,12 @@ test_that("get_rating works as expected (GRO simple case)", {
   trad <- cuts$traditional
 
   # GRO only → filter on indicator + measure (GROWTH)
-  gro_cuts <- trad %>%
+  gro_cuts <- trad |>
     dplyr::filter(indicator == "GRO", measure == "GROWTH")
 
-  excd_cut <- gro_cuts %>% dplyr::filter(rating_short == "excd") %>% dplyr::pull(cutscore) %>% dplyr::first()
-  meet_cut <- gro_cuts %>% dplyr::filter(rating_short == "meet") %>% dplyr::pull(cutscore) %>% dplyr::first()
-  appr_cut <- gro_cuts %>% dplyr::filter(rating_short == "appr") %>% dplyr::pull(cutscore) %>% dplyr::first()
+  excd_cut <- gro_cuts |> dplyr::filter(rating_short == "excd") |> dplyr::pull(cutscore) |> dplyr::first()
+  meet_cut <- gro_cuts |> dplyr::filter(rating_short == "meet") |> dplyr::pull(cutscore) |> dplyr::first()
+  appr_cut <- gro_cuts |> dplyr::filter(rating_short == "appr") |> dplyr::pull(cutscore) |> dplyr::first()
 
   expect_equal(get_rating(excd_cut + 0.1, "GRO", "GROWTH", "E", "ELA", trad, 30), "Exceeds")
   expect_equal(get_rating(meet_cut + 0.1, "GRO", "GROWTH", "E", "ELA", trad, 30), "Meets")
