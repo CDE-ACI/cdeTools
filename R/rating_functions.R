@@ -47,6 +47,7 @@ get_rating <- function(score, indicator, measure, emh_code, subject, cuts_df, n)
   if (indicator == "GRO") {
     emh_code <- "ALL"
     subject <- "ALL"
+    measure <- "GROWTH"
   }
 
   cuts <- cuts_df |>
