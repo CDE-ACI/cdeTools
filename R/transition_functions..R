@@ -1,40 +1,51 @@
 #' Create an HTML-formatted transition matrix of before→after ratings
 #'
-#' @param df A data frame containing at least:
-#'   * `test`         – a test identifier  
-#'   * `sub`          – a subgroup identifier (the column stays named `sub`)  
-#'   * `rating_pre`   – an ordered factor of “before” ratings  
-#'   * `rating_post`  – an ordered factor of “after” ratings  
+#' @param df        A data frame containing at least the columns indicated by `pre_col` and `post_col`, plus `test` and `sub`.
 #' @param test      Optional string. If non-NULL, only rows with `test == test` are used.
 #' @param subgroup  Optional string. If non-NULL, only rows with `sub == subgroup` are used.
-#' @return An HTML table (a `kable`) with colored cells showing each before→after transition.
+#' @param pre_col   Name of the "before" rating column (ordered factor). Default `"rating_pre"`.
+#' @param post_col  Name of the "after"  rating column (ordered factor). Default `"rating_post"`.
+#' @param return_df Logical; if `TRUE`, returns the raw transition data frame instead of an HTML table. Default `FALSE`.
+#' @return If `return_df = FALSE` (default), an HTML `kable` of the colored transition matrix.  
+#'         If `return_df = TRUE`, a base data frame (matrix form) of counts, with rownames = pre-levels.
 #' @importFrom dplyr filter
 #' @importFrom knitr kable
 #' @importFrom kableExtra cell_spec kable_styling
 #' @export
-trans_matrix <- function(df, test = NULL, subgroup = NULL) {
-  df_sub <- df
+trans_matrix <- function(df,
+                         test      = NULL,
+                         subgroup  = NULL,
+                         pre_col   = "rating_pre",
+                         post_col  = "rating_post",
+                         return_df = FALSE) {
+  data <- df
 
   if (!is.null(test)) {
-    df_sub <- df_sub |> dplyr::filter(test == !!test)
+    data <- data |> dplyr::filter(test == !!test)
   }
   if (!is.null(subgroup)) {
-    df_sub <- df_sub |> dplyr::filter(sub == !!subgroup)
+    data <- data |> dplyr::filter(sub == !!subgroup)
   }
-
-  if (nrow(df_sub) == 0) {
+  if (nrow(data) == 0) {
     stop("No data found",
-         if (!is.null(test))      paste0(" for test = ", test),
-         if (!is.null(subgroup))  paste0(" and subgroup = ", subgroup))
+         if (!is.null(test))     paste0(" for test=", test),
+         if (!is.null(subgroup)) paste0(" and subgroup=", subgroup))
   }
 
-  levels_pre <- levels(df_sub$rating_pre)
-  tbl        <- with(df_sub, table(rating_pre, rating_post))
-  mat        <- as.data.frame.matrix(tbl)
+  # build the raw transition counts matrix
+  tbl <- with(data, table(.data[[pre_col]], .data[[post_col]]))
+  mat <- as.data.frame.matrix(tbl)
 
+  # if the user wants the raw counts, return here
+  if (return_df) {
+    return(mat)
+  }
+
+  # otherwise proceed to format as colored HTML table
+  levels_before <- levels(data[[pre_col]])
   get_color <- function(before, after) {
-    i0 <- match(before, levels_pre)
-    i1 <- match(after,  levels_pre)
+    i0 <- match(before, levels_before)
+    i1 <- match(after,  levels_before)
     if      (i1 < i0) "green"
     else if (i1 > i0) "red"
     else              "grey"
@@ -42,33 +53,35 @@ trans_matrix <- function(df, test = NULL, subgroup = NULL) {
 
   mat_fmt <- mat
   for (i in seq_len(nrow(mat_fmt))) {
-    r0 <- rownames(mat_fmt)[i]
+    before <- rownames(mat_fmt)[i]
     for (j in seq_len(ncol(mat_fmt))) {
-      r1 <- colnames(mat_fmt)[j]
-      v  <- mat_fmt[i, j]
-      if (v == 0 || r0 == "-") {
+      after <- colnames(mat_fmt)[j]
+      v     <- mat_fmt[i, j]
+      if (v == 0 || before == "-") {
         mat_fmt[i, j] <- as.character(v)
       } else {
         mat_fmt[i, j] <- kableExtra::cell_spec(
           v,
           color      = "black",
-          background = get_color(r0, r1),
+          background = get_color(before, after),
           bold       = TRUE
         )
       }
     }
   }
 
+  caption <- paste(
+    "Transition Matrix",
+    if (!is.null(test))     paste0("for test=", test),
+    if (!is.null(subgroup)) paste0("subgroup=", subgroup)
+  )
+
   knitr::kable(
     mat_fmt,
     format  = "html",
     escape  = FALSE,
     align   = "c",
-    caption = paste(
-      "Transition Matrix",
-      if (!is.null(test))     paste0("for test=", test),
-      if (!is.null(subgroup)) paste0("subgroup=", subgroup)
-    )
+    caption = caption
   ) |>
     kableExtra::kable_styling("striped", full_width = FALSE)
 }

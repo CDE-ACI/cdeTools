@@ -85,3 +85,28 @@ test_that("trans_sum() works when filters are NULL", {
   sum2 <- trans_sum(toy)
   expect_s3_class(sum2, "knitr_kable")
 })
+
+test_that("trans_matrix can return a raw data frame", {
+  # build a tiny example
+  df <- tibble::tibble(
+    test        = c("T1","T1","T1","T1"),
+    sub         = c("A","A","A","A"),
+    rating_pre  = factor(c("Exceeds","Meets","Meets","Does Not Meet"),
+                         levels = c("Exceeds","Meets","Approaching","Does Not Meet"),
+                         ordered = TRUE),
+    rating_post = factor(c("Meets","Meets","Exceeds","Does Not Meet"),
+                         levels = c("Exceeds","Meets","Approaching","Does Not Meet"),
+                         ordered = TRUE)
+  )
+  
+  mat_df <- trans_matrix(df,
+                         test      = "T1",
+                         subgroup  = "A",
+                         return_df = TRUE)
+  
+  expect_s3_class(mat_df, "data.frame")
+  # it should be a square matrix with one row per level
+  expect_equal(dim(mat_df), c(4L, 4L))
+  # and the single "Exceeds→Meets" transition was 1
+  expect_equal(mat_df["Exceeds","Meets"], 1L)
+})

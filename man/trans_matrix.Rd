@@ -4,23 +4,31 @@
 \alias{trans_matrix}
 \title{Create an HTML-formatted transition matrix of before→after ratings}
 \usage{
-trans_matrix(df, test = NULL, subgroup = NULL)
+trans_matrix(
+  df,
+  test = NULL,
+  subgroup = NULL,
+  pre_col = "rating_pre",
+  post_col = "rating_post",
+  return_df = FALSE
+)
 }
 \arguments{
-\item{df}{A data frame containing at least:
-\itemize{
-\item \code{test}         – a test identifier
-\item \code{sub}          – a subgroup identifier (the column stays named \code{sub})
-\item \code{rating_pre}   – an ordered factor of “before” ratings
-\item \code{rating_post}  – an ordered factor of “after” ratings
-}}
+\item{df}{A data frame containing at least the columns indicated by \code{pre_col} and \code{post_col}, plus \code{test} and \code{sub}.}
 
 \item{test}{Optional string. If non-NULL, only rows with \code{test == test} are used.}
 
 \item{subgroup}{Optional string. If non-NULL, only rows with \code{sub == subgroup} are used.}
+
+\item{pre_col}{Name of the "before" rating column (ordered factor). Default \code{"rating_pre"}.}
+
+\item{post_col}{Name of the "after"  rating column (ordered factor). Default \code{"rating_post"}.}
+
+\item{return_df}{Logical; if \code{TRUE}, returns the raw transition data frame instead of an HTML table. Default \code{FALSE}.}
 }
 \value{
-An HTML table (a \code{kable}) with colored cells showing each before→after transition.
+If \code{return_df = FALSE} (default), an HTML \code{kable} of the colored transition matrix.
+If \code{return_df = TRUE}, a base data frame (matrix form) of counts, with rownames = pre-levels.
 }
 \description{
 Create an HTML-formatted transition matrix of before→after ratings
