@@ -86,14 +86,19 @@ trans_matrix <- function(df,
 
   knitr::kable(
     mat_fmt,
-    format   = "html",
-    escape   = FALSE,
-    align    = "c",
-    caption  = caption
+    format  = "html",
+    escape  = FALSE,
+    align   = "c",
+    caption = caption
   ) |>
-    kableExtra::add_header_above(c(!!pre_label := 1,
-                                  !!post_label := ncol(mat_fmt) - 1)) |>
+    kableExtra::add_header_above(
+      setNames(
+        c(1, ncol(mat_fmt) - 1),
+        c(pre_label, post_label)
+      )
+    ) |>
     kableExtra::kable_styling("striped", full_width = FALSE)
+  
 }
 
 
