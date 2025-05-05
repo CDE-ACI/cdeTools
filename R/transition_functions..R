@@ -100,7 +100,7 @@ trans_matrix <- function(df,
     kableExtra::add_header_above(
       setNames(
         c(1, ncol(mat_fmt) - 1),
-        c("", post_label)
+        c(" ", post_label)
       )
     ) |>
     kableExtra::kable_styling("striped", full_width = FALSE)
