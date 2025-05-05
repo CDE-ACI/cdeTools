@@ -32,8 +32,12 @@ trans_matrix <- function(df,
          if (!is.null(subgroup)) paste0(" and subgroup=", subgroup))
   }
 
-  # build the raw transition counts matrix
-  tbl <- with(data, table(.data[[pre_col]], .data[[post_col]]))
+  # === build the raw transition counts matrix ===
+  # use base indexing rather than .data inside with()
+  tbl <- table(
+    data[[pre_col]],
+    data[[post_col]]
+  )
   mat <- as.data.frame.matrix(tbl)
 
   # if the user wants the raw counts, return here
@@ -41,7 +45,7 @@ trans_matrix <- function(df,
     return(mat)
   }
 
-  # otherwise proceed to format as colored HTML table
+  # === otherwise, format as colored HTML table ===
   levels_before <- levels(data[[pre_col]])
   get_color <- function(before, after) {
     i0 <- match(before, levels_before)
@@ -85,6 +89,7 @@ trans_matrix <- function(df,
   ) |>
     kableExtra::kable_styling("striped", full_width = FALSE)
 }
+
 
 
 #' Summarize rating changes (before→after) for one test/subgroup
