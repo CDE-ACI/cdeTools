@@ -1,56 +1,55 @@
 #' Create an HTML-formatted transition matrix of before→after ratings
 #'
-#' @param df         A data frame containing at least the columns indicated by `pre_col` and `post_col`, plus `test` and `sub`.
-#' @param test       Optional string. If non-NULL, only rows with `test == test` are used.
-#' @param subgroup   Optional string. If non-NULL, only rows with `sub == subgroup` are used.
-#' @param pre_col    Name of the "before" rating column (ordered factor). Default `"rating_pre"`.
-#' @param post_col   Name of the "after"  rating column (ordered factor). Default `"rating_post"`.
-#' @param pre_label  Label for the first column header. Default `NULL` → falls back to `pre_col`.
-#' @param post_label Label for the top span over rating columns. Default `NULL` → falls back to `post_col`.
-#' @param return_df  Logical; if `TRUE`, returns the raw transition data frame instead of rendering an HTML table. Default `FALSE`.
-#' @return If `return_df=FALSE`: an HTML `kable` of the colored transition matrix with custom row/column labels.  
-#'         If `return_df=TRUE`: a plain `data.frame` of counts with the first column named as `pre_label`.
+#' @param df          A data frame containing at least the columns indicated by `pre_col` and `post_col`, plus `test` and `sub`.
+#' @param test        Optional string. If non-NULL, only rows with `test == test` are used.
+#' @param subgroup    Optional string. If non-NULL, only rows with `sub == subgroup` are used.
+#' @param pre_col     Name of the "before" rating column (ordered factor). Default `"rating_pre"`.
+#' @param post_col    Name of the "after"  rating column (ordered factor). Default `"rating_post"`.
+#' @param pre_label   Label for the first (row) header. Default `NULL` → falls back to `pre_col`.
+#' @param post_label  Label for the top header spanning all rating columns. Default `NULL` → falls back to `post_col`.
+#' @param return_df   Logical; if `TRUE`, returns the raw transition data frame instead of an HTML table. Default `FALSE`.
+#' @param table_title Optional string; if non-NULL, used verbatim as the table caption.
+#' @return If `return_df=FALSE`: an HTML `kable` of the colored transition matrix.  
+#'         If `return_df=TRUE`: a plain `data.frame` of counts with first column named as `pre_label`.
 #' @importFrom dplyr filter
 #' @importFrom tibble rownames_to_column
 #' @importFrom knitr kable
 #' @importFrom kableExtra cell_spec kable_styling add_header_above
 #' @export
 trans_matrix <- function(df,
-                         test       = NULL,
-                         subgroup   = NULL,
-                         pre_col    = "rating_pre",
-                         post_col   = "rating_post",
-                         pre_label  = NULL,
-                         post_label = NULL,
-                         return_df  = FALSE) {
-  data <- df
+                         test        = NULL,
+                         subgroup    = NULL,
+                         pre_col     = "rating_pre",
+                         post_col    = "rating_post",
+                         pre_label   = NULL,
+                         post_label  = NULL,
+                         return_df   = FALSE,
+                         table_title = NULL) {
 
-  # Apply optional filters
-  if (!is.null(test))     data <- data |> dplyr::filter(test == !!test)
-  if (!is.null(subgroup)) data <- data |> dplyr::filter(sub   == !!subgroup)
+  data <- df
+  if (!is.null(test))     data <- data |> dplyr::filter(test     == !!test)
+  if (!is.null(subgroup)) data <- data |> dplyr::filter(sub       == !!subgroup)
   if (nrow(data) == 0) {
     stop("No data found",
          if (!is.null(test))     paste0(" for test=", test),
          if (!is.null(subgroup)) paste0(" and subgroup=", subgroup))
   }
 
-  # Determine actual labels
+  # Determine labels
   if (is.null(pre_label))  pre_label  <- pre_col
   if (is.null(post_label)) post_label <- post_col
 
-  # Build the raw transition counts matrix
+  # 1) Build raw transition counts
   tbl <- table(data[[pre_col]], data[[post_col]])
   mat <- as.data.frame.matrix(tbl, stringsAsFactors = FALSE)
-
-  # Turn rownames into the first column named as pre_label
   mat <- tibble::rownames_to_column(mat, var = pre_label)
 
-  # If user wants the raw df, return it here
+  # 2) If raw data requested, return it here
   if (return_df) {
     return(mat)
   }
 
-  # Otherwise, format as a colored HTML table
+  # 3) Otherwise format as a colored HTML table
   levels_before <- levels(data[[pre_col]])
   get_color <- function(before, after) {
     i0 <- match(before, levels_before)
@@ -79,23 +78,29 @@ trans_matrix <- function(df,
     }
   }
 
-  caption <- paste(
-    "Transition Matrix",
-    if (!is.null(test))     paste0(" for test=", test),
-    if (!is.null(subgroup)) paste0(" and subgroup=", subgroup)
-  )
+  # 4) Decide caption
+  caption <- if (!is.null(table_title)) {
+    table_title
+  } else {
+    paste0(
+      "Transition Matrix",
+      if (!is.null(test))     paste0(" for test=", test),
+      if (!is.null(subgroup)) paste0(" and subgroup=", subgroup)
+    )
+  }
 
+  # 5) Render the kable with custom headers
   knitr::kable(
     mat_fmt,
-    format   = "html",
-    escape   = FALSE,
-    align    = "c",
-    caption  = caption
+    format  = "html",
+    escape  = FALSE,
+    align   = "c",
+    caption = caption
   ) |>
     kableExtra::add_header_above(
       setNames(
         c(1, ncol(mat_fmt) - 1),
-        c(pre_label, post_label)
+        c("", post_label)
       )
     ) |>
     kableExtra::kable_styling("striped", full_width = FALSE)

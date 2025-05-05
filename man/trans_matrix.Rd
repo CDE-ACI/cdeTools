@@ -12,7 +12,8 @@ trans_matrix(
   post_col = "rating_post",
   pre_label = NULL,
   post_label = NULL,
-  return_df = FALSE
+  return_df = FALSE,
+  table_title = NULL
 )
 }
 \arguments{
@@ -26,15 +27,17 @@ trans_matrix(
 
 \item{post_col}{Name of the "after"  rating column (ordered factor). Default \code{"rating_post"}.}
 
-\item{pre_label}{Label for the first column header. Default \code{NULL} → falls back to \code{pre_col}.}
+\item{pre_label}{Label for the first (row) header. Default \code{NULL} → falls back to \code{pre_col}.}
 
-\item{post_label}{Label for the top span over rating columns. Default \code{NULL} → falls back to \code{post_col}.}
+\item{post_label}{Label for the top header spanning all rating columns. Default \code{NULL} → falls back to \code{post_col}.}
 
-\item{return_df}{Logical; if \code{TRUE}, returns the raw transition data frame instead of rendering an HTML table. Default \code{FALSE}.}
+\item{return_df}{Logical; if \code{TRUE}, returns the raw transition data frame instead of an HTML table. Default \code{FALSE}.}
+
+\item{table_title}{Optional string; if non-NULL, used verbatim as the table caption.}
 }
 \value{
-If \code{return_df=FALSE}: an HTML \code{kable} of the colored transition matrix with custom row/column labels.
-If \code{return_df=TRUE}: a plain \code{data.frame} of counts with the first column named as \code{pre_label}.
+If \code{return_df=FALSE}: an HTML \code{kable} of the colored transition matrix.
+If \code{return_df=TRUE}: a plain \code{data.frame} of counts with first column named as \code{pre_label}.
 }
 \description{
 Create an HTML-formatted transition matrix of before→after ratings
