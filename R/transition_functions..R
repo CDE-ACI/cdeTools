@@ -28,7 +28,7 @@ trans_matrix <- function(df,
 
   data <- df
   if (!is.null(test))     data <- data |> dplyr::filter(test     == !!test)
-  if (!is.null(subgroup)) data <- data |> dplyr::filter(sub       == !!subgroup)
+  if (!is.null(subgroup)) data <- data |> dplyr::filter(cat_simp == !!subgroup)
   if (nrow(data) == 0) {
     stop("No data found",
          if (!is.null(test))     paste0(" for test=", test),
@@ -125,7 +125,7 @@ trans_sum <- function(df, test = NULL, subgroup = NULL, debug = FALSE) {
     df_sub <- df_sub |> dplyr::filter(test == !!test)
   }
   if (!is.null(subgroup)) {
-    df_sub <- df_sub |> dplyr::filter(sub == !!subgroup)
+    df_sub <- df_sub |> dplyr::filter(cat_simp == !!subgroup)
   }
 
   if (nrow(df_sub) == 0) {
