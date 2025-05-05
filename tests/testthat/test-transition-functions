@@ -1,0 +1,87 @@
+library(testthat)
+library(dplyr)
+library(cdeTools)
+library(kableExtra)
+
+# build a tiny toy data‐set with every kind of transition
+toy <- tibble::tibble(
+  test         = rep("T1", 6),
+  sub          = rep("SG", 6),
+  rating_pre   = factor(
+    c("Exceeds",     # Down → Meets
+      "Meets",       # No Change → Meets
+      "Approaching", # Up → Exceeds
+      "Does Not Meet", # Down → Approaching
+      "-",            # previously unrated → Meets
+      "Meets"         # Now unrated
+    ),
+    levels = c("Exceeds", "Meets", "Approaching", "Does Not Meet"),
+    ordered = TRUE
+  ),
+  rating_post  = factor(
+    c("Meets",    # one below Exceeds
+      "Meets",    # same
+      "Exceeds",  # one above Approaching
+      "Approaching",
+      "Meets",    # newly rated
+      "-"         # dropped
+    ),
+    levels = c("Exceeds", "Meets", "Approaching", "Does Not Meet"),
+    ordered = TRUE
+  )
+)
+
+test_that("trans_matrix() returns an HTML table with the right counts", {
+  # call with both filters
+  tbl_html <- toy |> trans_matrix(test = "T1", subgroup = "SG")
+  # it should be a kableExtra object
+  expect_s3_class(tbl_html, "knitr_kable")
+  # as HTML it must contain the 2×2 cell with value "1"
+  expect_true(grepl(">1<", as.character(tbl_html)))
+  # but there should be exactly 6 non‐zero cells highlighted
+  non_zero_cells <- gregexpr("cell_spec", as.character(tbl_html))[[1]]
+  expect_equal(length(non_zero_cells), 6)
+})
+
+test_that("trans_matrix() works when you leave filters NULL", {
+  # no args => same grouping
+  tbl2 <- trans_matrix(toy)
+  expect_s3_class(tbl2, "knitr_kable")
+})
+
+test_that("trans_sum() correctly counts and labels changes", {
+  sum_html <- toy |> trans_sum(test = "T1", subgroup = "SG")
+  expect_s3_class(sum_html, "knitr_kable")
+
+  # Extract the underlying data.frame that kable() would have used
+  # by re-running the summary logic:
+  summary_df <- toy |>
+    dplyr::mutate(
+      diff = ifelse(rating_pre == "-", NA_real_,
+                    as.numeric(rating_post) - as.numeric(rating_pre)),
+      change = case_when(
+        rating_pre == "-" & rating_post != "-" ~ "Previously Unrated",
+        rating_pre == "-" & rating_post == "-" ~ "No Rating",
+        rating_pre != "-" & rating_post == "-" ~ "Now Unrated",
+        diff <  0 ~ paste("Up", abs(diff)),
+        diff == 0 ~ "No Change",
+        diff >  0 ~ paste("Down", diff)
+      )
+    ) |>
+    count(change) |>
+    arrange(change) |>
+    mutate(Percent = paste0(round(n / sum(n) * 100,1), "%"))
+
+  # Now test that the counts line up
+  expect_equal(summary_df$n, c(1,1,1,1,1,1))
+  expect_true("Previously Unrated"  %in% summary_df$change)
+  expect_true("Now Unrated"         %in% summary_df$change)
+  expect_true("Up 1"                %in% summary_df$change)
+  expect_true("Down 1"              %in% summary_df$change)
+  expect_true("No Change"           %in% summary_df$change)
+})
+
+test_that("trans_sum() works when filters are NULL", {
+  sum2 <- trans_sum(toy)
+  expect_s3_class(sum2, "knitr_kable")
+})

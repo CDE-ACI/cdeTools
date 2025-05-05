@@ -21,10 +21,13 @@ Depends:
 RoxygenNote: 7.3.2
 Imports: 
     dplyr,
+    purrr,
     janitor,
     DBI,
     glue,
-    cli
+    cli,
+    knitr,
+    kableExtra
 Roxygen: list(markdown = TRUE)
 Suggests: 
     testthat (>= 3.0.0)

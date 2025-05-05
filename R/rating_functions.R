@@ -132,24 +132,34 @@ apply_rating <- function(df,
                          category_col,
                          cuts_df,
                          rating_col = "rating",
-                         pts_col = "pts") {
+                         pts_col    = "pts") {
 
   df <- df |>
+    # 1) calculate raw .rating (chr) and .pts (dbl)
     dplyr::mutate(
       .rating = purrr::pmap_chr(
-        list(score = .data[[score_col]],
+        list(score     = .data[[score_col]],
              indicator = .data[[indicator_col]],
-             measure = .data[[measure_col]],
-             emh_code = .data[[emh_col]],
-             subject = .data[[subject_col]],
-             n = .data[[n_col]]),
+             measure   = .data[[measure_col]],
+             emh_code  = .data[[emh_col]],
+             subject   = .data[[subject_col]],
+             n         = .data[[n_col]]),
         ~ get_rating(..1, ..2, ..3, ..4, ..5, cuts_df, ..6)
       ),
       .pts = purrr::map2_dbl(.rating, .data[[category_col]], get_pts)
     ) |>
+    # 2) rename to user‐specified columns
     dplyr::rename(
       !!rating_col := .rating,
-      !!pts_col := .pts
+      !!pts_col    := .pts
+    ) |>
+    # 3) convert the new rating column into an ordered factor
+    dplyr::mutate(
+      !!rating_col := factor(
+        .data[[rating_col]],
+        levels  = c("Exceeds", "Meets", "Approaching", "Does Not Meet","-"),
+        ordered = TRUE
+      )
     )
 
   return(df)

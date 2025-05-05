@@ -43,33 +43,44 @@ test_that("apply_rating adds columns correctly", {
   cuts <- get_cut_scores()
 
   test_df <- data.frame(
-    MEDIAN_SGP = c(80, 50, 30, 15, NA),
-    INDICATOR = rep("GRO", 5),
-    MEASURE = rep("GROWTH", 5),
-    EMH_CODE = rep("M", 5),
-    SUBJECT = rep("ELA", 5),
-    N_COUNT_SGP = c(30, 30, 30, "n < 20", 30),
-    CATEGORY = rep("ALL STUDENTS", 5),
+    MEDIAN_SGP    = c(80, 50, 30, 15, NA),
+    INDICATOR     = rep("GRO", 5),
+    MEASURE       = rep("GROWTH", 5),
+    EMH_CODE      = rep("M", 5),
+    SUBJECT       = rep("ELA", 5),
+    N_COUNT_SGP   = c(30, 30, 30, "n < 20", 30),
+    CATEGORY      = rep("ALL STUDENTS", 5),
     stringsAsFactors = FALSE
   )
 
-  rated_df <- apply_rating(test_df,
-                           score_col = "MEDIAN_SGP",
-                           indicator_col = "INDICATOR",
-                           measure_col = "MEASURE",
-                           emh_col = "EMH_CODE",
-                           subject_col = "SUBJECT",
-                           n_col = "N_COUNT_SGP",
-                           category_col = "CATEGORY",
-                           cuts_df = cuts$traditional,
-                           rating_col = "growth_rating",
-                           pts_col = "growth_pts")
+  rated_df <- apply_rating(
+    test_df,
+    score_col     = "MEDIAN_SGP",
+    indicator_col = "INDICATOR",
+    measure_col   = "MEASURE",
+    emh_col       = "EMH_CODE",
+    subject_col   = "SUBJECT",
+    n_col         = "N_COUNT_SGP",
+    category_col  = "CATEGORY",
+    cuts_df       = cuts$traditional,
+    rating_col    = "growth_rating",
+    pts_col       = "growth_pts"
+  )
 
+  # columns created
   expect_true("growth_rating" %in% names(rated_df))
-  expect_true("growth_pts" %in% names(rated_df))
+  expect_true("growth_pts"    %in% names(rated_df))
 
-  expect_equal(rated_df$growth_rating[4], "-")
+  # growth_rating is an ordered factor
+  expect_s3_class(rated_df$growth_rating, "ordered")
+
+  # check the 4th element: as.character() so "-" matches
+  expect_equal(
+    as.character(rated_df$growth_rating[4]),
+    "-"
+  )
+
+  # check the 4th point value and its type
   expect_equal(rated_df$growth_pts[4], 0)
-
   expect_type(rated_df$growth_pts, "double")
 })
