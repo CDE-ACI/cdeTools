@@ -10,6 +10,8 @@ trans_matrix(
   subgroup = NULL,
   pre_col = "rating_pre",
   post_col = "rating_post",
+  pre_label = pre_col,
+  post_label = post_col,
   return_df = FALSE
 )
 }
@@ -24,11 +26,15 @@ trans_matrix(
 
 \item{post_col}{Name of the "after"  rating column (ordered factor). Default \code{"rating_post"}.}
 
-\item{return_df}{Logical; if \code{TRUE}, returns the raw transition data frame instead of an HTML table. Default \code{FALSE}.}
+\item{pre_label}{Column header label for the "before" ratings. Default = \code{pre_col}.}
+
+\item{post_label}{Label to display above the rating‐columns. Default = \code{post_col}.}
+
+\item{return_df}{Logical; if \code{TRUE}, returns the raw transition data frame instead of rendering an HTML table. Default \code{FALSE}.}
 }
 \value{
-If \code{return_df = FALSE} (default), an HTML \code{kable} of the colored transition matrix.
-If \code{return_df = TRUE}, a base data frame (matrix form) of counts, with rownames = pre-levels.
+If \code{return_df=FALSE}: an HTML \code{kable} of the colored transition matrix with row/column labels.
+If \code{return_df=TRUE}: a plain \code{data.frame} of counts with the first column named \code{pre_label}.
 }
 \description{
 Create an HTML-formatted transition matrix of before→after ratings

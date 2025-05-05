@@ -1,25 +1,29 @@
 #' Create an HTML-formatted transition matrix of before→after ratings
 #'
-#' @param df        A data frame containing at least the columns indicated by `pre_col` and `post_col`, plus `test` and `sub`.
-#' @param test      Optional string. If non-NULL, only rows with `test == test` are used.
-#' @param subgroup  Optional string. If non-NULL, only rows with `sub == subgroup` are used.
-#' @param pre_col   Name of the "before" rating column (ordered factor). Default `"rating_pre"`.
-#' @param post_col  Name of the "after"  rating column (ordered factor). Default `"rating_post"`.
-#' @param return_df Logical; if `TRUE`, returns the raw transition data frame instead of an HTML table. Default `FALSE`.
-#' @return If `return_df = FALSE` (default), an HTML `kable` of the colored transition matrix.  
-#'         If `return_df = TRUE`, a base data frame (matrix form) of counts, with rownames = pre-levels.
+#' @param df         A data frame containing at least the columns indicated by `pre_col` and `post_col`, plus `test` and `sub`.
+#' @param test       Optional string. If non-NULL, only rows with `test == test` are used.
+#' @param subgroup   Optional string. If non-NULL, only rows with `sub == subgroup` are used.
+#' @param pre_col    Name of the "before" rating column (ordered factor). Default `"rating_pre"`.
+#' @param post_col   Name of the "after"  rating column (ordered factor). Default `"rating_post"`.
+#' @param pre_label  Column header label for the "before" ratings. Default = `pre_col`.
+#' @param post_label Label to display above the rating‐columns. Default = `post_col`.
+#' @param return_df  Logical; if `TRUE`, returns the raw transition data frame instead of rendering an HTML table. Default `FALSE`.
+#' @return If `return_df=FALSE`: an HTML `kable` of the colored transition matrix with row/column labels.  
+#'         If `return_df=TRUE`: a plain `data.frame` of counts with the first column named `pre_label`.
 #' @importFrom dplyr filter
 #' @importFrom knitr kable
-#' @importFrom kableExtra cell_spec kable_styling
+#' @importFrom kableExtra cell_spec kable_styling add_header_above
 #' @export
 trans_matrix <- function(df,
-                         test      = NULL,
-                         subgroup  = NULL,
-                         pre_col   = "rating_pre",
-                         post_col  = "rating_post",
-                         return_df = FALSE) {
-  data <- df
+                         test       = NULL,
+                         subgroup   = NULL,
+                         pre_col    = "rating_pre",
+                         post_col   = "rating_post",
+                         pre_label  = pre_col,
+                         post_label = post_col,
+                         return_df  = FALSE) {
 
+  data <- df
   if (!is.null(test)) {
     data <- data |> dplyr::filter(test == !!test)
   }
@@ -28,37 +32,36 @@ trans_matrix <- function(df,
   }
   if (nrow(data) == 0) {
     stop("No data found",
-         if (!is.null(test))     paste0(" for test=", test),
-         if (!is.null(subgroup)) paste0(" and subgroup=", subgroup))
+         if (!is.null(test))     paste0(" for test = ", test),
+         if (!is.null(subgroup)) paste0(" and subgroup = ", subgroup))
   }
 
-  # === build the raw transition counts matrix ===
-  # use base indexing rather than .data inside with()
-  tbl <- table(
-    data[[pre_col]],
-    data[[post_col]]
-  )
-  mat <- as.data.frame.matrix(tbl)
+  # build counts matrix
+  tbl <- table(data[[pre_col]], data[[post_col]])
+  mat <- as.data.frame.matrix(tbl, stringsAsFactors = FALSE)
 
-  # if the user wants the raw counts, return here
+  # convert rownames into a real column named pre_label
+  mat <- tibble::rownames_to_column(mat, var = pre_label)
+
   if (return_df) {
     return(mat)
   }
 
-  # === otherwise, format as colored HTML table ===
+  # format the HTML table
   levels_before <- levels(data[[pre_col]])
-  get_color <- function(before, after) {
-    i0 <- match(before, levels_before)
-    i1 <- match(after,  levels_before)
+  get_color <- function(b, a) {
+    i0 <- match(b, levels_before)
+    i1 <- match(a, levels_before)
     if      (i1 < i0) "green"
     else if (i1 > i0) "red"
     else              "grey"
   }
 
   mat_fmt <- mat
+  # apply coloring only to the numeric rating columns (all except the first)
   for (i in seq_len(nrow(mat_fmt))) {
-    before <- rownames(mat_fmt)[i]
-    for (j in seq_len(ncol(mat_fmt))) {
+    before <- mat_fmt[[pre_label]][i]
+    for (j in seq(2, ncol(mat_fmt))) {
       after <- colnames(mat_fmt)[j]
       v     <- mat_fmt[i, j]
       if (v == 0 || before == "-") {
@@ -74,19 +77,22 @@ trans_matrix <- function(df,
     }
   }
 
+  # build caption
   caption <- paste(
     "Transition Matrix",
-    if (!is.null(test))     paste0("for test=", test),
-    if (!is.null(subgroup)) paste0("subgroup=", subgroup)
+    if (!is.null(test))     paste0(" for test=", test),
+    if (!is.null(subgroup)) paste0(" and subgroup=", subgroup)
   )
 
   knitr::kable(
     mat_fmt,
-    format  = "html",
-    escape  = FALSE,
-    align   = "c",
-    caption = caption
+    format   = "html",
+    escape   = FALSE,
+    align    = "c",
+    caption  = caption
   ) |>
+    kableExtra::add_header_above(c(!!pre_label := 1,
+                                  !!post_label := ncol(mat_fmt) - 1)) |>
     kableExtra::kable_styling("striped", full_width = FALSE)
 }
 
