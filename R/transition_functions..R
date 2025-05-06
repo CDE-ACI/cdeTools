@@ -85,19 +85,25 @@ trans_matrix <- function(df,
   # 4) Render table
   knitr::kable(
     mat_fmt,
-    format   = "html",
-    escape   = FALSE,
-    align    = "c",
-    caption  = caption_html
+    format     = "html",
+    escape     = FALSE,
+    align      = align_vec,                                # left for first col, center for the rest
+    caption    = caption_html,
+    table.attr = 'style="width:auto; margin:1em auto;"'    # shrink‐to‐content and center
   ) |>
     kableExtra::add_header_above(
       setNames(
         c(1, ncol(mat_fmt) - 1),
-        c("", post_label)
+        c(" ", post_label)
       )
     ) |>
-    kableExtra::kable_styling("striped", full_width = FALSE)
-}
+    kableExtra::kable_styling(
+      bootstrap_options = c("striped", "condensed", "responsive"),
+      full_width       = FALSE,
+      position         = "center"
+    )
+  }
+  
 
 
 #' Summarize rating changes (before→after) for one test/subgroup
@@ -181,3 +187,4 @@ trans_sum <- function(df,
   ) |>
     kableExtra::kable_styling(full_width = FALSE, position = "center")
 }
+
