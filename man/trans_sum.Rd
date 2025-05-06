@@ -16,21 +16,21 @@ trans_sum(
 )
 }
 \arguments{
-\item{df}{A data frame containing at least the columns indicated by \code{pre_col} and \code{post_col}, plus \code{test} and \code{sub}.}
+\item{df}{A data frame containing at least the columns indicated by \code{pre_col} and \code{post_col}, plus \code{test} and \code{cat_simp}.}
 
-\item{test}{Optional string to filter on \code{test}}
+\item{test}{Optional string to filter on \code{test}.}
 
-\item{subgroup}{Optional string to filter on \code{sub}}
+\item{subgroup}{Optional string to filter on \code{cat_simp}.}
 
-\item{pre_col}{Name of the "before" rating column. Default \code{"rating_pre"}.}
+\item{pre_col}{Name of the “before” rating column. Default \code{"rating_pre"}.}
 
-\item{post_col}{Name of the "after"  rating column. Default \code{"rating_post"}.}
+\item{post_col}{Name of the “after”  rating column. Default \code{"rating_post"}.}
 
-\item{debug}{Logical; if \code{TRUE}, prints any rows where change is \code{NA}}
+\item{debug}{Logical; if \code{TRUE}, prints any rows where change is \code{NA}.}
 
-\item{table_title}{Optional string; if non-NULL, used verbatim as the table caption. Default \code{NULL} → auto.}
+\item{table_title}{Optional string; if non‐NULL, used verbatim as the table caption.}
 
-\item{table_subtitle}{Optional string; if non-NULL, rendered under the title in smaller text.}
+\item{table_subtitle}{Optional string; if non‐NULL, rendered under the title in smaller text.}
 }
 \value{
 An HTML table (a \code{kable}) with counts & percents by change category and optional subtitle.

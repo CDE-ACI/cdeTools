@@ -2,7 +2,7 @@
 % Please edit documentation in R/transition_functions..R
 \name{trans_matrix}
 \alias{trans_matrix}
-\title{Create an HTML-formatted transition matrix of before→after ratings}
+\title{Create an HTML–formatted transition matrix of before→after ratings}
 \usage{
 trans_matrix(
   df,
@@ -18,15 +18,15 @@ trans_matrix(
 )
 }
 \arguments{
-\item{df}{A data frame containing at least the columns indicated by \code{pre_col} and \code{post_col}, plus \code{test} and \code{sub}.}
+\item{df}{A data frame containing at least the columns indicated by \code{pre_col} and \code{post_col}, plus \code{test} and \code{cat_simp}.}
 
-\item{test}{Optional string. If non-NULL, only rows with \code{test == test} are used.}
+\item{test}{Optional string. If non‐NULL, only rows with \code{test == test} are used.}
 
-\item{subgroup}{Optional string. If non-NULL, only rows with \code{sub == subgroup} are used.}
+\item{subgroup}{Optional string. If non‐NULL, only rows with \code{cat_simp == subgroup} are used.}
 
-\item{pre_col}{Name of the "before" rating column (ordered factor). Default \code{"rating_pre"}.}
+\item{pre_col}{Name of the “before” rating column (ordered factor). Default \code{"rating_pre"}.}
 
-\item{post_col}{Name of the "after"  rating column (ordered factor). Default \code{"rating_post"}.}
+\item{post_col}{Name of the “after”  rating column (ordered factor). Default \code{"rating_post"}.}
 
 \item{pre_label}{Label for the first (row) header. Default \code{NULL} → falls back to \code{pre_col}.}
 
@@ -34,14 +34,14 @@ trans_matrix(
 
 \item{return_df}{Logical; if \code{TRUE}, returns the raw transition data frame instead of rendering an HTML table. Default \code{FALSE}.}
 
-\item{table_title}{Optional string; if non-NULL, used verbatim as the table caption. Default \code{NULL} → auto–generated.}
+\item{table_title}{Optional string; if non‐NULL, used verbatim as the table caption. Default \code{NULL} → auto–generated.}
 
-\item{table_subtitle}{Optional string; if non-NULL, rendered under the title in smaller text.}
+\item{table_subtitle}{Optional string; if non‐NULL, rendered under the title in smaller text.}
 }
 \value{
-If \code{return_df=FALSE}: an HTML \code{kable} of the colored transition matrix with custom labels and subtitle.
-If \code{return_df=TRUE}: a plain \code{data.frame} of counts with first column named as \code{pre_label}.
+If \code{return_df = FALSE}: an HTML kable of the colored transition matrix with custom labels and subtitle.
+If \code{return_df = TRUE}: a plain \code{data.frame} of counts with first column named as \code{pre_label}.
 }
 \description{
-Create an HTML-formatted transition matrix of before→after ratings
+Create an HTML–formatted transition matrix of before→after ratings
 }
