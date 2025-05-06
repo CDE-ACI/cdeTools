@@ -13,7 +13,8 @@ trans_matrix(
   pre_label = NULL,
   post_label = NULL,
   return_df = FALSE,
-  table_title = NULL
+  table_title = NULL,
+  table_subtitle = NULL
 )
 }
 \arguments{
@@ -29,14 +30,16 @@ trans_matrix(
 
 \item{pre_label}{Label for the first (row) header. Default \code{NULL} → falls back to \code{pre_col}.}
 
-\item{post_label}{Label for the top header spanning all rating columns. Default \code{NULL} → falls back to \code{post_col}.}
+\item{post_label}{Label for the top header spanning rating columns. Default \code{NULL} → falls back to \code{post_col}.}
 
-\item{return_df}{Logical; if \code{TRUE}, returns the raw transition data frame instead of an HTML table. Default \code{FALSE}.}
+\item{return_df}{Logical; if \code{TRUE}, returns the raw transition data frame instead of rendering an HTML table. Default \code{FALSE}.}
 
-\item{table_title}{Optional string; if non-NULL, used verbatim as the table caption.}
+\item{table_title}{Optional string; if non-NULL, used verbatim as the table caption. Default \code{NULL} → auto–generated.}
+
+\item{table_subtitle}{Optional string; if non-NULL, rendered under the title in smaller text.}
 }
 \value{
-If \code{return_df=FALSE}: an HTML \code{kable} of the colored transition matrix.
+If \code{return_df=FALSE}: an HTML \code{kable} of the colored transition matrix with custom labels and subtitle.
 If \code{return_df=TRUE}: a plain \code{data.frame} of counts with first column named as \code{pre_label}.
 }
 \description{

@@ -1,15 +1,16 @@
 #' Create an HTML-formatted transition matrix of before→after ratings
 #'
-#' @param df          A data frame containing at least the columns indicated by `pre_col` and `post_col`, plus `test` and `sub`.
-#' @param test        Optional string. If non-NULL, only rows with `test == test` are used.
-#' @param subgroup    Optional string. If non-NULL, only rows with `sub == subgroup` are used.
-#' @param pre_col     Name of the "before" rating column (ordered factor). Default `"rating_pre"`.
-#' @param post_col    Name of the "after"  rating column (ordered factor). Default `"rating_post"`.
-#' @param pre_label   Label for the first (row) header. Default `NULL` → falls back to `pre_col`.
-#' @param post_label  Label for the top header spanning all rating columns. Default `NULL` → falls back to `post_col`.
-#' @param return_df   Logical; if `TRUE`, returns the raw transition data frame instead of an HTML table. Default `FALSE`.
-#' @param table_title Optional string; if non-NULL, used verbatim as the table caption.
-#' @return If `return_df=FALSE`: an HTML `kable` of the colored transition matrix.  
+#' @param df             A data frame containing at least the columns indicated by `pre_col` and `post_col`, plus `test` and `sub`.
+#' @param test           Optional string. If non-NULL, only rows with `test == test` are used.
+#' @param subgroup       Optional string. If non-NULL, only rows with `sub == subgroup` are used.
+#' @param pre_col        Name of the "before" rating column (ordered factor). Default `"rating_pre"`.
+#' @param post_col       Name of the "after"  rating column (ordered factor). Default `"rating_post"`.
+#' @param pre_label      Label for the first (row) header. Default `NULL` → falls back to `pre_col`.
+#' @param post_label     Label for the top header spanning rating columns. Default `NULL` → falls back to `post_col`.
+#' @param return_df      Logical; if `TRUE`, returns the raw transition data frame instead of rendering an HTML table. Default `FALSE`.
+#' @param table_title    Optional string; if non-NULL, used verbatim as the table caption. Default `NULL` → auto–generated.
+#' @param table_subtitle Optional string; if non-NULL, rendered under the title in smaller text.
+#' @return If `return_df=FALSE`: an HTML `kable` of the colored transition matrix with custom labels and subtitle.  
 #'         If `return_df=TRUE`: a plain `data.frame` of counts with first column named as `pre_label`.
 #' @importFrom dplyr filter
 #' @importFrom tibble rownames_to_column
@@ -17,90 +18,82 @@
 #' @importFrom kableExtra cell_spec kable_styling add_header_above
 #' @export
 trans_matrix <- function(df,
-                         test        = NULL,
-                         subgroup    = NULL,
-                         pre_col     = "rating_pre",
-                         post_col    = "rating_post",
-                         pre_label   = NULL,
-                         post_label  = NULL,
-                         return_df   = FALSE,
-                         table_title = NULL) {
+                         test         = NULL,
+                         subgroup     = NULL,
+                         pre_col      = "rating_pre",
+                         post_col     = "rating_post",
+                         pre_label    = NULL,
+                         post_label   = NULL,
+                         return_df    = FALSE,
+                         table_title  = NULL,
+                         table_subtitle = NULL) {
 
   data <- df
   if (!is.null(test))     data <- data |> dplyr::filter(test     == !!test)
-  if (!is.null(subgroup)) data <- data |> dplyr::filter(cat_simp == !!subgroup)
+  if (!is.null(subgroup)) data <- data |> dplyr::filter(sub       == !!subgroup)
   if (nrow(data) == 0) {
     stop("No data found",
          if (!is.null(test))     paste0(" for test=", test),
          if (!is.null(subgroup)) paste0(" and subgroup=", subgroup))
   }
 
-  # Determine labels
-  if (is.null(pre_label))  pre_label  <- pre_col
-  if (is.null(post_label)) post_label <- post_col
+  # Labels
+  if (is.null(pre_label))    pre_label    <- pre_col
+  if (is.null(post_label))   post_label   <- post_col
 
-  # 1) Build raw transition counts
+  # 1) Build raw counts
   tbl <- table(data[[pre_col]], data[[post_col]])
   mat <- as.data.frame.matrix(tbl, stringsAsFactors = FALSE)
   mat <- tibble::rownames_to_column(mat, var = pre_label)
 
-  # 2) If raw data requested, return it here
-  if (return_df) {
-    return(mat)
-  }
+  if (return_df) return(mat)
 
-  # 3) Otherwise format as a colored HTML table
+  # 2) Color‐format each cell
   levels_before <- levels(data[[pre_col]])
-  get_color <- function(before, after) {
-    i0 <- match(before, levels_before)
-    i1 <- match(after,  levels_before)
+  get_color <- function(b, a) {
+    i0 <- match(b, levels_before)
+    i1 <- match(a, levels_before)
     if      (i1 < i0) "green"
     else if (i1 > i0) "red"
     else              "grey"
   }
-
   mat_fmt <- mat
   for (i in seq_len(nrow(mat_fmt))) {
     before <- mat_fmt[[pre_label]][i]
     for (j in seq(2, ncol(mat_fmt))) {
       after <- colnames(mat_fmt)[j]
       v     <- mat_fmt[i, j]
-      if (v == 0 || before == "-") {
-        mat_fmt[i, j] <- as.character(v)
-      } else {
-        mat_fmt[i, j] <- kableExtra::cell_spec(
-          v,
-          color      = "black",
-          background = get_color(before, after),
-          bold       = TRUE
-        )
-      }
+      mat_fmt[i, j] <-
+        if (v == 0 || before == "-") as.character(v)
+        else kableExtra::cell_spec(v,
+                                  color      = "black",
+                                  background = get_color(before, after),
+                                  bold       = TRUE)
     }
   }
 
-  # 4) Decide caption
-  caption <- if (!is.null(table_title)) {
-    table_title
-  } else {
-    paste0(
-      "Transition Matrix",
-      if (!is.null(test))     paste0(" for test=", test),
-      if (!is.null(subgroup)) paste0(" and subgroup=", subgroup)
-    )
-  }
+  # 3) Build caption + subtitle (HTML)
+  main_caption <- if (!is.null(table_title)) table_title else
+    paste0("Transition Matrix",
+           if (!is.null(test))     paste0(" for test=", test),
+           if (!is.null(subgroup)) paste0(" and subgroup=", subgroup))
+  caption_html <- if (!is.null(table_subtitle)) {
+    paste0(main_caption,
+           "<br/><span style='font-size:0.9em;'>", table_subtitle, "</span>")
+  } else main_caption
 
-  # 5) Render the kable with custom headers
+  # 4) Render table
   knitr::kable(
     mat_fmt,
-    format  = "html",
-    escape  = FALSE,
-    align   = "c",
-    caption = caption
+    format   = "html",
+    escape   = FALSE,
+    align    = "c",
+    caption  = caption_html
   ) |>
     kableExtra::add_header_above(
       setNames(
         c(1, ncol(mat_fmt) - 1),
-        c(" ", post_label)
+        c("", post_label)
       )
     ) |>
     kableExtra::kable_styling("striped", full_width = FALSE)
@@ -109,41 +102,45 @@ trans_matrix <- function(df,
 
 #' Summarize rating changes (before→after) for one test/subgroup
 #'
-#' @param df A data frame containing at least `test`, `sub`, `rating_pre`, and `rating_post`
-#' @param test      Optional string to filter on `test`
-#' @param subgroup  Optional string to filter on `sub`
-#' @param debug     Logical; if `TRUE`, prints any rows where change is `NA`
-#' @return An HTML table (a `kable`) with counts & percents by change category
+#' @param df             A data frame containing at least the columns indicated by `pre_col` and `post_col`, plus `test` and `sub`.
+#' @param test           Optional string to filter on `test`
+#' @param subgroup       Optional string to filter on `sub`
+#' @param pre_col        Name of the "before" rating column. Default `"rating_pre"`.
+#' @param post_col       Name of the "after"  rating column. Default `"rating_post"`.
+#' @param debug          Logical; if `TRUE`, prints any rows where change is `NA`
+#' @param table_title    Optional string; if non-NULL, used verbatim as the table caption. Default `NULL` → auto.
+#' @param table_subtitle Optional string; if non-NULL, rendered under the title in smaller text.
+#' @return An HTML table (a `kable`) with counts & percents by change category and optional subtitle.
 #' @importFrom dplyr filter mutate count arrange
 #' @importFrom knitr kable
 #' @importFrom kableExtra kable_styling
 #' @export
-trans_sum <- function(df, test = NULL, subgroup = NULL, debug = FALSE) {
-  df_sub <- df
+trans_sum <- function(df,
+                      test           = NULL,
+                      subgroup       = NULL,
+                      pre_col        = "rating_pre",
+                      post_col       = "rating_post",
+                      debug          = FALSE,
+                      table_title    = NULL,
+                      table_subtitle = NULL) {
 
-  if (!is.null(test)) {
-    df_sub <- df_sub |> dplyr::filter(test == !!test)
-  }
-  if (!is.null(subgroup)) {
-    df_sub <- df_sub |> dplyr::filter(cat_simp == !!subgroup)
-  }
-
-  if (nrow(df_sub) == 0) {
+  data <- df
+  if (!is.null(test))     data <- data |> dplyr::filter(test     == !!test)
+  if (!is.null(subgroup)) data <- data |> dplyr::filter(sub       == !!subgroup)
+  if (nrow(data) == 0) {
     stop("No data found",
-         if (!is.null(test))     paste0(" for test = ", test),
-         if (!is.null(subgroup)) paste0(" and subgroup = ", subgroup))
+         if (!is.null(test))     paste0(" for test=", test),
+         if (!is.null(subgroup)) paste0(" and subgroup=", subgroup))
   }
 
-  df2 <- df_sub |>
+  df2 <- data |>
     dplyr::mutate(
-      diff = ifelse(
-        as.character(rating_pre) == "-", NA_real_,
-        as.numeric(rating_post) - as.numeric(rating_pre)
-      ),
+      diff = ifelse(as.character(.data[[pre_col]]) == "-", NA_real_,
+                    as.numeric(.data[[post_col]]) - as.numeric(.data[[pre_col]])),
       change = dplyr::case_when(
-        rating_pre  == "-" & rating_post != "-" ~ "Previously Unrated",
-        rating_pre  == "-" & rating_post == "-" ~ "No Rating",
-        rating_pre  != "-" & rating_post == "-" ~ "Now Unrated",
+        .data[[pre_col]] == "-" & .data[[post_col]] != "-" ~ "Previously Unrated",
+        .data[[pre_col]] == "-" & .data[[post_col]] == "-" ~ "No Rating",
+        .data[[pre_col]] != "-" & .data[[post_col]] == "-" ~ "Now Unrated",
         diff <  0  ~ paste("Up", abs(diff)),
         diff == 0  ~ "No Change",
         diff >  0  ~ paste("Down", diff),
@@ -156,28 +153,31 @@ trans_sum <- function(df, test = NULL, subgroup = NULL, debug = FALSE) {
     if (nrow(nas) > 0) {
       message("Rows with NA change:")
       print(nas)
-    } else {
-      message("No NA change rows.")
-    }
+    } else message("No NA change rows.")
   }
 
   summary_df <- df2 |>
     dplyr::count(change) |>
     dplyr::arrange(change) |>
-    dplyr::mutate(
-      Percent = paste0(round(n / sum(n) * 100, 1), "%")
-    ) |>
+    dplyr::mutate(Percent = paste0(round(n/sum(n)*100,1), "%")) |>
     dplyr::rename(Change = change, Count = n)
+
+  # captions
+  main_caption <- if (!is.null(table_title)) table_title else
+    paste0("Transition Summary",
+           if (!is.null(test))     paste0(" for test=", test),
+           if (!is.null(subgroup)) paste0(" and subgroup=", subgroup))
+  caption_html <- if (!is.null(table_subtitle)) {
+    paste0(main_caption,
+           "<br/><span style='font-size:0.9em;'>", table_subtitle, "</span>")
+  } else main_caption
 
   knitr::kable(
     summary_df,
     format  = "html",
+    escape  = FALSE,
     align   = "c",
-    caption = paste(
-      "Transition Summary",
-      if (!is.null(test))     paste0("for test=", test),
-      if (!is.null(subgroup)) paste0("subgroup=", subgroup)
-    )
+    caption = caption_html
   ) |>
     kableExtra::kable_styling(full_width = FALSE, position = "center")
 }

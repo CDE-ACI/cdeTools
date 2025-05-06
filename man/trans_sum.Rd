@@ -4,19 +4,36 @@
 \alias{trans_sum}
 \title{Summarize rating changes (before→after) for one test/subgroup}
 \usage{
-trans_sum(df, test = NULL, subgroup = NULL, debug = FALSE)
+trans_sum(
+  df,
+  test = NULL,
+  subgroup = NULL,
+  pre_col = "rating_pre",
+  post_col = "rating_post",
+  debug = FALSE,
+  table_title = NULL,
+  table_subtitle = NULL
+)
 }
 \arguments{
-\item{df}{A data frame containing at least \code{test}, \code{sub}, \code{rating_pre}, and \code{rating_post}}
+\item{df}{A data frame containing at least the columns indicated by \code{pre_col} and \code{post_col}, plus \code{test} and \code{sub}.}
 
 \item{test}{Optional string to filter on \code{test}}
 
 \item{subgroup}{Optional string to filter on \code{sub}}
 
+\item{pre_col}{Name of the "before" rating column. Default \code{"rating_pre"}.}
+
+\item{post_col}{Name of the "after"  rating column. Default \code{"rating_post"}.}
+
 \item{debug}{Logical; if \code{TRUE}, prints any rows where change is \code{NA}}
+
+\item{table_title}{Optional string; if non-NULL, used verbatim as the table caption. Default \code{NULL} → auto.}
+
+\item{table_subtitle}{Optional string; if non-NULL, rendered under the title in smaller text.}
 }
 \value{
-An HTML table (a \code{kable}) with counts & percents by change category
+An HTML table (a \code{kable}) with counts & percents by change category and optional subtitle.
 }
 \description{
 Summarize rating changes (before→after) for one test/subgroup
