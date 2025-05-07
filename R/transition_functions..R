@@ -95,7 +95,10 @@ caption_html <- paste0(
   "</div>"
 )
 
-# … then align & render …
+# 4) Alignment vector: left for the first col, center for the rest
+align_vec <- c("l", rep("c", ncol(mat_fmt) - 1))
+
+# 5) Render HTML table
 knitr::kable(
   mat_fmt,
   format     = "html",
@@ -105,16 +108,15 @@ knitr::kable(
   table.attr = 'style="width:auto; margin:1em auto;"'
 ) |>
   kableExtra::add_header_above(
-    setNames(
-      c(1, ncol(mat_fmt) - 1),
-      c(" ", post_label)
-    )
+    setNames(c(1, ncol(mat_fmt) - 1),
+             c(" ", post_label))
   ) |>
   kableExtra::kable_styling(
     bootstrap_options = c("striped","condensed","responsive"),
     full_width       = FALSE,
     position         = "center"
   )
+
 }
 
 
