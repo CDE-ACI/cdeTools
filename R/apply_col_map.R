@@ -23,6 +23,7 @@ apply_col_map <- function(df, convert_type = TRUE, clean = TRUE) {
     year = "report_year",
     year_detail = "detail_dasy_key",
     dist = "ddst_dist_number",
+    dist = "dist_number",
     distname = "ddst_district_name",
     schname = "dsch_school_name",
     sch  = "dsch_school_number",
@@ -71,20 +72,22 @@ apply_col_map <- function(df, convert_type = TRUE, clean = TRUE) {
     # Define standard variable names for conversion
     integer_vars <- c("scale_score", "sgp", "year")
     numeric_vars <- c("mss", "mgp", "pct_pts", "pct_pts_w")
-    factor_vars  <- c("data_set", "dist", "sch", "sub", "emh", "test", "aec", "online",
-                      "charter", "magnet", "innovation", "grd_low", "grd_high",
-                      "rating", "grd", "grd_simp", "cat_simp")
+    factor_vars  <- c("data_set", "sub", "emh", "test", "aec", "online",
+                      "charter", "magnet", "innovation", "rating")
+    char_vars    <- c("dist","sch")
 
     # Determine which of these variables exist in the dataframe
     integer_vars_exist <- intersect(integer_vars, names(df))
     numeric_vars_exist <- intersect(numeric_vars, names(df))
     factor_vars_exist  <- intersect(factor_vars, names(df))
+    char_vars_exist    <- intersect(char_vars, names(df))
 
     # Apply conversions using dplyr's across function
     df <- df |>
       dplyr::mutate(dplyr::across(dplyr::all_of(numeric_vars_exist), as.numeric)) |>
       dplyr::mutate(dplyr::across(dplyr::all_of(integer_vars_exist), as.integer)) |>
-      dplyr::mutate(dplyr::across(dplyr::all_of(factor_vars_exist), as.factor))
+      dplyr::mutate(dplyr::across(dplyr::all_of(factor_vars_exist), as.factor)) |> 
+      dplyr::mutate(dplyr::across(dplyr::all_of(char_vars_exist), as.character))
   }
 
   if (clean) {

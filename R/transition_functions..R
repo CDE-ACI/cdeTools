@@ -16,6 +16,7 @@
 #' @importFrom tibble rownames_to_column
 #' @importFrom knitr kable
 #' @importFrom kableExtra cell_spec add_header_above kable_styling
+#' @importFrom stats setNames
 #' @export
 trans_matrix <- function(df,
                          test           = NULL,

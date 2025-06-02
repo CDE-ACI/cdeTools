@@ -3,6 +3,7 @@
 #' @param path Path to Excel file with cut scores.
 #'
 #' @return A list with traditional and AEC cut scores as tibbles.
+#' @importFrom readxl read_excel read_xlsx
 #' @export
 read_cut_scores <- function(path) {
   list(

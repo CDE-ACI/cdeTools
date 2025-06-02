@@ -27,7 +27,9 @@ Imports:
     glue,
     cli,
     knitr,
-    kableExtra
+    kableExtra,
+    tibble,
+    readxl
 Roxygen: list(markdown = TRUE)
 Suggests: 
     testthat (>= 3.0.0)
