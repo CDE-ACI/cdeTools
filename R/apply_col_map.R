@@ -41,7 +41,8 @@ apply_col_map <- function(df, convert_type = TRUE, clean = TRUE) {
     pct_pts = "pct_pts_earn",
     pct_pts_w = "pct_pts_earn_weighted",
     aec = "alt_ed_campus_yn",
-    cat_simp = "category_simple"
+    cat_simp = "category_simple",
+    iep = "diep_code"
   )
 
   # Filter rename_map to include only columns that exist in df
@@ -72,14 +73,13 @@ apply_col_map <- function(df, convert_type = TRUE, clean = TRUE) {
     # Define standard variable names for conversion
     integer_vars <- c("scale_score", "sgp", "year")
     numeric_vars <- c("mss", "mgp", "pct_pts", "pct_pts_w")
-    factor_vars  <- c("data_set", "sub", "emh", "test", "aec", "online",
-                      "charter", "magnet", "innovation", "rating")
+    #factor_vars  <- c("rating")
     char_vars    <- c("dist","sch")
 
     # Determine which of these variables exist in the dataframe
     integer_vars_exist <- intersect(integer_vars, names(df))
     numeric_vars_exist <- intersect(numeric_vars, names(df))
-    factor_vars_exist  <- intersect(factor_vars, names(df))
+    #factor_vars_exist  <- intersect(factor_vars, names(df))
     char_vars_exist    <- intersect(char_vars, names(df))
 
     # Apply conversions using dplyr's across function
