@@ -11,7 +11,10 @@ The goal of cdeTools is to provide functionaly for CDE staff in frequent data
 cleaning and management tasks, including the following functions:
 
 - apply_col_map()
-- check_uniq
+- check_uniq()
+- query_sql()
+- round_half_up()
+- get_ratings()
 
 ## Installation
 
