@@ -4,7 +4,7 @@
 \alias{check_uniq}
 \title{Check uniqueness of a dataset by specified variables}
 \usage{
-check_uniq(df, vars, n_show = 5, df_label = NULL)
+check_uniq(df, vars, n_show = 5, df_label = NULL, return_dupes = FALSE)
 }
 \arguments{
 \item{df}{A data frame.}
@@ -13,12 +13,17 @@ check_uniq(df, vars, n_show = 5, df_label = NULL)
 
 \item{n_show}{Number of duplicate rows to show (default is 5).}
 
-\item{df_label}{Name of df being checked.}
+\item{df_label}{Optional label for the dataset, for more informative messages.}
+
+\item{return_dupes}{Logical. If TRUE and duplicates are found, returns a list with
+the original df and a data frame of duplicate keys. Default is FALSE.}
 }
 \value{
-Returns the original data frame if unique by \code{vars}; otherwise throws an error.
+If unique, returns the original data frame.
+If not unique and \code{return_dupes = TRUE}, returns a list with \code{df} and \code{dupes}.
+Otherwise, stops with an error.
 }
 \description{
 This function checks whether the input dataset is unique by a given set of variables.
-If duplicates are found, the function prints a sample and stops with an error.
+If duplicates are found, the function prints a sample and stops with an error (unless return_dupes is TRUE).
 }
